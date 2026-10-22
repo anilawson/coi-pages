@@ -1,0 +1,70 @@
+# infusion.themomentumcompany.com, Cup of Infusion's pages (Jon Anderson,
+# The Momentum Company). Modelled on marvinforever/ag-pages, 2026-10-22, Ani
+# with Claude.
+#
+# Nothing here but index.html is edited by hand. Every run copies the audio
+# player from marvinforever/cj-pages (the pages Ani maintains for every brand),
+# swaps Christine's first-paint names for Jon's, and publishes. Change the
+# player in cj-pages; this site follows within 15 minutes, or at once if you
+# press "Run workflow".
+#
+# Deliberately NOT copied: joined.html (the sign-up form). Cup of Infusion is
+# joined through the program invite and YES, never through a public form, so
+# the home page here is a plain page with no form (index.html in this repo).
+name: publish
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/15 * * * *"
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy the player from cj-pages
+        run: |
+          set -euo pipefail
+          mkdir site
+          B=https://raw.githubusercontent.com/marvinforever/cj-pages/main
+          for f in player.html 404.html; do curl -fsSL "$B/$f" -o "site/$f"; done
+          cd site
+          for f in player.html 404.html; do
+            sed -i \
+              -e 's/Get the Daily Whisper/About Cup of Infusion/g' \
+              -e 's/The Daily Whisper/Cup of Infusion/g' \
+              -e 's/Daily Whisper/Cup of Infusion/g' \
+              -e 's/Christine Jewell/Jon Anderson/g' \
+              -e 's/aria-hidden="true">CJ</aria-hidden="true">JA</' \
+              -e 's#https://go\.thechristinejewell\.com#https://infusion.themomentumcompany.com/#g' \
+              -e 's/Your next morning is on its way/Your next Cup of Infusion is on its way/g' \
+              -e 's/The mornings arrive by text/Cup of Infusion arrives by text/g' \
+              -e "s/This link has expired\./We couldn't find this audio./" \
+              -e "s/Each day's track opens from its own personal link, and this one has finished its run\. The series itself is still open to you\./Double-check the link in Jon's text, or just reply to it and we'll send it again./" \
+              -e "s/Ten mornings, about ten minutes each, free, right here by text\./A short audio every Monday, Wednesday and Friday, right here by text./" \
+              "$f"
+          done
+          cp ../index.html index.html
+          # Refuse to publish if the copy did not take: better a stale site than
+          # Christine's page on Jon's address.
+          if grep -Eq '>Christine|Christine Jewell|thechristinejewell' index.html player.html 404.html; then
+            echo "Christine's name survived the copy; not publishing."; exit 1
+          fi
+          echo infusion.themomentumcompany.com > CNAME
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
