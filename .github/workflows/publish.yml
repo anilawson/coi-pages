@@ -45,13 +45,13 @@ jobs:
               -e 's/Get the Daily Whisper/About Cup of Infusion/g' \
               -e 's/The Daily Whisper/Cup of Infusion/g' \
               -e 's/Daily Whisper/Cup of Infusion/g' \
-              -e 's/Christine Jewell/Jon Anderson/g' \
-              -e 's/aria-hidden="true">CJ</aria-hidden="true">JA</' \
+              -e 's/Christine Jewell/The Momentum Company/g' \
+              -e 's/aria-hidden="true">CJ</aria-hidden="true">TM</' \
               -e 's#https://go\.thechristinejewell\.com#https://infusion.themomentumcompany.com/#g' \
               -e 's/Your next morning is on its way/Your next Cup of Infusion is on its way/g' \
               -e 's/The mornings arrive by text/Cup of Infusion arrives by text/g' \
               -e "s/This link has expired\./We couldn't find this audio./" \
-              -e "s/Each day's track opens from its own personal link, and this one has finished its run\. The series itself is still open to you\./Double-check the link in Jon's text, or just reply to it and we'll send it again./" \
+              -e "s/Each day's track opens from its own personal link, and this one has finished its run\. The series itself is still open to you\./Double-check the link in our text, or just reply to it and we'll send it again./" \
               -e "s/Ten mornings, about ten minutes each, free, right here by text\./A short audio every Monday, Wednesday and Friday, right here by text./" \
               "$f"
           done
